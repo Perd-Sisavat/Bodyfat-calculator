@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>คำนวณไขมันในร่างกาย</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f4f4f4;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+    h2 {
+      color: #2c3e50;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+    }
+    #result {
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h2>เครื่องคำนวณเปอร์เซ็นต์ไขมันในร่างกาย</h2>
+  <form id="healthForm">
+    <label>ชื่อ:</label>
+    <input type="text" id="name" required><label>อายุ:</label>
+<input type="number" id="age" required>
+
+<label>เพศ:</label>
+<select id="gender">
+  <option value="male">ชาย</option>
+  <option value="female">หญิง</option>
+</select>
+
+<label>น้ำหนัก (กก.):</label>
+<input type="number" id="weight" required>
+
+<label>ส่วนสูง (ซม.):</label>
+<input type="number" id="height" required>
+
+<label>รอบคอ (ซม.):</label>
+<input type="number" id="neck" required>
+
+<label>รอบเอว (ซม.):</label>
+<input type="number" id="waist" required>
+
+<div id="hipField" style="display:none">
+  <label>รอบสะโพก (ซม.):</label>
+  <input type="number" id="hip">
+</div>
+
+<button type="submit">คำนวณ</button>
+
+  </form>  <div id="result"></div>  <script>
+    const genderInput = document.getElementById("gender");
+    const hipField = document.getElementById("hipField");
+
+    genderInput.addEventListener("change", () => {
+      hipField.style.display = genderInput.value === "female" ? "block" : "none";
+    });
+
+    document.getElementById("healthForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const gender = genderInput.value;
+      const height = parseFloat(document.getElementById("height").value);
+      const weight = parseFloat(document.getElementById("weight").value);
+      const neck = parseFloat(document.getElementById("neck").value);
+      const waist = parseFloat(document.getElementById("waist").value);
+      const hip = parseFloat(document.getElementById("hip").value);
+
+      const heightM = height / 100;
+      const bmi = weight / (heightM * heightM);
+
+      let bodyFat = 0;
+      if (gender === "male") {
+        bodyFat = 86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76;
+      } else {
+        bodyFat = 163.205 * Math.log10(waist + hip - neck) - 97.684 * Math.log10(height) - 78.387;
+      }
+
+      const leanMass = weight * (1 - bodyFat / 100);
+
+      let fatStatus = "";
+      if (gender === "male") {
+        if (bodyFat < 6) fatStatus = "ต่ำเกินไป";
+        else if (bodyFat < 24) fatStatus = "ปกติ";
+        else fatStatus = "ไขมันสูง";
+      } else {
+        if (bodyFat < 16) fatStatus = "ต่ำเกินไป";
+        else if (bodyFat < 30) fatStatus = "ปกติ";
+        else fatStatus = "ไขมันสูง";
+      }
+
+      document.getElementById("result").innerHTML = `
+        <strong>ผลลัพธ์ของคุณ:</strong><br>
+        - ค่า BMI: ${bmi.toFixed(2)}<br>
+        - เปอร์เซ็นต์ไขมัน: ${bodyFat.toFixed(2)}% (${fatStatus})<br>
+        - มวลไม่ใช่ไขมัน (Lean Mass): ${leanMass.toFixed(2)} กก.
+      `;
+    });
+  </script></body>
+</html>
